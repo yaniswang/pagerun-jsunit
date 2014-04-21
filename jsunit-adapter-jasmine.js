@@ -1,0 +1,100 @@
+(function(win){
+    if (win.jasmine === undefined || win.pagerun === undefined) {
+        return;
+    }
+    pagerun.waitMe();
+    jasmine.HtmlReporter = function(_doc) {
+        var self = this;
+        var doc = _doc || window.document;
+
+        self.reportRunnerStarting = function(runner) {
+            self.runnerStartTime = new Date().getTime();
+            self.suiteCount = 0;
+            self.specCount = 0;
+            self.failedCount = 0;
+            self.passedCount = 0;
+            pagerun.result('jasmine.start', 'Start of the Jasmine runner.');
+        };
+
+        self.reportSpecStarting = function(spec) {
+            self.specStartTime = new Date().getTime();
+        };
+
+        self.reportSpecResults = function(spec) {
+            var elapsed = new Date().getTime() - self.specStartTime,
+                results = spec.results();
+
+            var status = results.skipped ? 'skipped' : (results.passed() ? 'passed' : 'failed');
+
+            var messages = [];
+            if (status === 'failed') {
+                var resultItems = results.getItems(),
+                    item;
+                for (var i = 0, c = resultItems.length; i < c; i++) {
+                    item = resultItems[i];
+                    if (item.type == 'expect' && item.passed && !item.passed()) {
+                        messages.push({
+                            message: item.message,
+                            stack: self.stackFilter(item.trace.stack)
+                        });
+                    }
+                }
+                self.failedCount++;
+            }
+            else if(status === 'passed'){
+                self.passedCount++;
+            }
+            self.specCount++;
+
+            pagerun.result('jasmine.specEnd', {
+                suiteName: spec.suite.getFullName(),
+                specName: spec.description,
+                status: status,
+                expectCount: results.totalCount,
+                expectPassed: results.passedCount,
+                expectFailed: results.failedCount,
+                messages: messages,
+                elapsed: elapsed
+            });
+        };
+
+        self.reportSuiteResults = function(suite) {
+            self.suiteCount++;
+        };
+
+        self.reportRunnerResults = function(runner) {
+            var elapsed = new Date().getTime() - self.runnerStartTime
+            pagerun.result('jasmine.end', {
+                suiteCount: self.suiteCount,
+                specCount: self.specCount,
+                failedCount: self.failedCount,
+                passedCount: self.passedCount,
+                elapsed: elapsed
+            });
+            pagerun.end();
+        };
+
+        self.log = function() {
+            pagerun.result(Array.prototype.slice.call(arguments));
+        };
+
+        self.specFilter = function(spec) {
+            return true;
+        };
+
+        self.stackFilter = function(stack) {
+            var arrResults = [];
+            var arrLines = (stack || '').split(/\r?\n/),
+                line;
+            for (var i = 0, c = arrLines.length; i < c; i++) {
+                line = arrLines[i];
+                if (!/\/jasmine(-\d|\.js)/i.test(line)) {
+                    arrResults.push(line);
+                };
+            }
+            return arrResults.join('\n');
+        }
+
+        return self;
+    };
+})(window);

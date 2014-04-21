@@ -1,0 +1,24 @@
+{
+  "name": "pagerun-jsunit",
+  "version": "0.9.1",
+  "description": "Catch js unit test result for pagerun.",
+  "main": "jsunit",
+  "dependencies": {
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/yaniswang/pagerun-jsunit.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yaniswang/pagerun-jsunit/issues"
+  },
+  "keywords": [
+    "pagerun",
+    "unittest",
+    "nodejs",
+    "javascript"
+  ],
+  "author": "Yanis Wang",
+  "license": "MIT"
+}
