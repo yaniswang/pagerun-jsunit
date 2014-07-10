@@ -7,7 +7,7 @@ module.exports = function(pagerun){
         var proxy = msg.proxy;
         proxy.addFilter(function(httpData, next, end){
             if(bOpenUrl === true){
-                var jsunitPath = httpData.protocol+'//pagerun/jsunit/';
+                var jsunitPath = '//pagerun/jsunit/';
                 // Mocha
                 var adapterMochaContent = fs.readFileSync(__dirname+'/jsunit-adapter-mocha.js');
                 var scriptMocha = '<script type="text/javascript" src="'+jsunitPath+'adapter_mocha.js" charset="utf-8"></script>';
@@ -41,46 +41,39 @@ module.exports = function(pagerun){
                         return all;
                     });
                 }
-                else if(httpData.type === 'request' && httpData.hostname === 'pagerun'){
-                    switch(httpData.path){
-                        case '/jsunit/adapter_mocha.js':
-                            httpData.responseCode = '200';
-                            httpData.responseHeaders = {
-                                'Content-Type': 'application/javascript'
-                            };
-                            httpData.responseData = adapterMochaContent;
-                            break;
-                        case '/jsunit/adapter_jasmine.js':
-                            httpData.responseCode = '200';
-                            httpData.responseHeaders = {
-                                'Content-Type': 'application/javascript'
-                            };
-                            httpData.responseData = adapterJasmineContent;
-                            break;
-                        case '/jsunit/adapter_qunit.js':
-                            httpData.responseCode = '200';
-                            httpData.responseHeaders = {
-                                'Content-Type': 'application/javascript'
-                            };
-                            httpData.responseData = adapterQunitContent;
-                            break;
-                        case '/jsunit/adapter_yuitest.js':
-                            httpData.responseCode = '200';
-                            httpData.responseHeaders = {
-                                'Content-Type': 'application/javascript'
-                            };
-                            httpData.responseData = adapterYuitestContent;
-                            break;
-                    }
-                    if(httpData.responseCode){
-                        return end();
-                    }
-                }
             }
             next();
         });
     });
     pagerun.on('webdriverOpenUrl', function(){
         bOpenUrl = true;
+    });
+    pagerun.addRequestMap('pagerun/jsunit/adapter_mocha.js', {
+        'responseCode': '200',
+        'responseHeaders': {
+            'Content-Type': 'application/javascript'
+        },
+        'responseData': fs.readFileSync(__dirname+'/jsunit-adapter-mocha.js')
+    });
+    pagerun.addRequestMap('pagerun/jsunit/adapter_jasmine.js', {
+        'responseCode': '200',
+        'responseHeaders': {
+            'Content-Type': 'application/javascript'
+        },
+        'responseData': fs.readFileSync(__dirname+'/jsunit-adapter-jasmine.js')
+    });
+    pagerun.addRequestMap('pagerun/jsunit/adapter_qunit.js', {
+        'responseCode': '200',
+        'responseHeaders': {
+            'Content-Type': 'application/javascript'
+        },
+        'responseData': fs.readFileSync(__dirname+'/jsunit-adapter-qunit.js')
+    });
+    pagerun.addRequestMap('pagerun/jsunit/adapter_yuitest.js', {
+        'responseCode': '200',
+        'responseHeaders': {
+            'Content-Type': 'application/javascript'
+        },
+        'responseData': fs.readFileSync(__dirname+'/jsunit-adapter-yuitest.js')
     });
 };

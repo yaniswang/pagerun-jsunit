@@ -1,6 +1,6 @@
 {
   "name": "pagerun-jsunit",
-  "version": "0.9.3",
+  "version": "0.9.4",
   "description": "Catch js unit test result for pagerun.",
   "main": "jsunit",
   "dependencies": {

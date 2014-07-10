@@ -1,13 +1,17 @@
-(function(win){
+pagerun.newTask('jsunit', function(){
+    var win = window;
+    var task = this;
     if (win.mocha === undefined || win.pagerun === undefined) {
         return;
     }
-    pagerun.waitMe();
     mocha.setup({reporter: function(runner){
         var runnerStartTime, suiteCount = 0, specCount = 0, failedCount = 0, passedCount = 0;
         
         runner.on('start', function() {
-            pagerun.result('mocha.start', 'Start of the Mocha runner.');
+            task.info({
+                'type': 'mocha.start',
+                'url': location.href
+            });
             runnerStartTime = new Date().getTime();
         });
         
@@ -38,6 +42,7 @@
             specCount ++;
             var state = test.state ? test.state : 'pending';
             var objResult = {
+                'type': 'mocha.testEnd',
                 'suiteName': test.parent.fullTitle(),
                 'testTitle': test.title,
                 'state': state,
@@ -55,19 +60,20 @@
             else if(state === 'passed'){
                 passedCount ++;
             }
-            pagerun.result('mocha.testEnd', objResult);           
+            task.info(objResult);           
         });
         
         runner.on('end', function() {
             var elapsed = new Date().getTime() - runnerStartTime;
-            pagerun.result('mocha.end', {
-                suiteCount: suiteCount,
-                specCount: specCount,
-                failedCount: failedCount,
-                passedCount: passedCount,
-                elapsed: elapsed
+            task.info({
+                'type': 'mocha.end',
+                'suiteCount': suiteCount,
+                'specCount': specCount,
+                'failedCount': failedCount,
+                'passedCount': passedCount,
+                'elapsed': elapsed
             });
-            pagerun.end();
+            task.end();
         });
     }});
     
@@ -100,4 +106,4 @@
         }
         return arrResults.join('\n');
     }
-})(window);
+});

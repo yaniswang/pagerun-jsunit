@@ -1,26 +1,31 @@
-(function(win){
+pagerun.newTask('jsunit', function(){
+    var win = window;
+    var task = this;
     if (win.QUnit === undefined || win.pagerun === undefined) {
         return;
     }
-    pagerun.waitMe();
     var testStartTime;
     QUnit.begin = function(){
-        pagerun.result(
-            'qunit.begin',
-            'Start of QUnit tester.'
+        task.info(
+            {
+                'type': 'qunit.begin',
+                'url': location.href
+            }
         );
     }
     QUnit.moduleStart = function(message){
-        pagerun.result(
-            'qunit.moduleStart',
-            message.name
+        task.info(
+            {
+                'type': 'qunit.moduleStart',
+                'module': message.name
+            }
         );
     }
     QUnit.testStart = function(message){
         testStartTime = new Date().getTime();
-        pagerun.result(
-            'qunit.testStart',
+        task.info(
             {
+                'type': 'qunit.testStart',
                 'module': message.module,
                 'name': message.name
             }
@@ -28,6 +33,7 @@
     }
     QUnit.log = function(message) {
         var messages = {
+            'type': 'qunit.log',
             'result' : message.result,
             'message' : message.message
         };
@@ -38,15 +44,14 @@
         if(message.source){
             messages['source'] = message.source;
         }
-        pagerun.result(
-            'qunit.log',
+        task.info(
             messages
         );
     };
     QUnit.testDone = function(message) {
-        pagerun.result(
-            'qunit.testDone',
+        task.info(
             {
+                'type': 'qunit.testDone',
                 'module' : message.module,
                 'name' : message.name,
                 'total' : message.total,
@@ -57,9 +62,9 @@
         );
     };
     QUnit.moduleDone = function(message){
-        pagerun.result(
-            'qunit.moduleDone',
+        task.info(
             {
+                'type': 'qunit.moduleDone',
                 'name' : message.name,
                 'total' : message.total,
                 'passed' : message.passed,
@@ -68,15 +73,15 @@
         );
     }
     QUnit.done = function(message) {
-        pagerun.result(
-            'qunit.done',
+        task.info(
             {
+                'type': 'qunit.done',
                 'total' : message.total,
                 'passed' : message.passed,
                 'failed' : message.failed,
                 'runtime' : message.runtime
             }
         );
-        pagerun.end();
+        task.end();
     };
-})(window);
+});

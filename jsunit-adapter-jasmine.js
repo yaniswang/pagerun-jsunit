@@ -1,8 +1,9 @@
-(function(win){
+pagerun.newTask('jsunit', function(){
+    var win = window;
+    var task = this;
     if (win.jasmine === undefined || win.pagerun === undefined) {
         return;
     }
-    pagerun.waitMe();
     jasmine.HtmlReporter = function(_doc) {
         var self = this;
         var doc = _doc || window.document;
@@ -13,7 +14,10 @@
             self.specCount = 0;
             self.failedCount = 0;
             self.passedCount = 0;
-            pagerun.result('jasmine.start', 'Start of the Jasmine runner.');
+            task.info({
+                'type': 'jasmine.start',
+                'url': location.href
+            });
         };
 
         self.reportSpecStarting = function(spec) {
@@ -46,15 +50,16 @@
             }
             self.specCount++;
 
-            pagerun.result('jasmine.specEnd', {
-                suiteName: spec.suite.getFullName(),
-                specName: spec.description,
-                status: status,
-                expectCount: results.totalCount,
-                expectPassed: results.passedCount,
-                expectFailed: results.failedCount,
-                messages: messages,
-                elapsed: elapsed
+            task.info({
+                'type': 'jasmine.specEnd',
+                'suiteName': spec.suite.getFullName(),
+                'specName': spec.description,
+                'status': status,
+                'expectCount': results.totalCount,
+                'expectPassed': results.passedCount,
+                'expectFailed': results.failedCount,
+                'messages': messages,
+                'elapsed': elapsed
             });
         };
 
@@ -64,18 +69,22 @@
 
         self.reportRunnerResults = function(runner) {
             var elapsed = new Date().getTime() - self.runnerStartTime
-            pagerun.result('jasmine.end', {
-                suiteCount: self.suiteCount,
-                specCount: self.specCount,
-                failedCount: self.failedCount,
-                passedCount: self.passedCount,
-                elapsed: elapsed
+            task.info({
+                'type': 'jasmine.end',
+                'suiteCount': self.suiteCount,
+                'specCount': self.specCount,
+                'failedCount': self.failedCount,
+                'passedCount': self.passedCount,
+                'elapsed': elapsed
             });
-            pagerun.end();
+            task.end();
         };
 
         self.log = function() {
-            pagerun.result(Array.prototype.slice.call(arguments));
+            task.info({
+                'type': 'jasmine.log',
+                'message': Array.prototype.slice.call(arguments)
+            });
         };
 
         self.specFilter = function(spec) {
@@ -97,4 +106,4 @@
 
         return self;
     };
-})(window);
+});
